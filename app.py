@@ -28,7 +28,7 @@ def aut():
     return render_template('tap_one.html')
 
 
-@app.route('/vk_callback', methods=['GET', 'POST'])
+@app.route('/callback', methods=['GET', 'POST'])
 def vk_callback():
     app.logger.info(f"METHOD: {request.method}")
     app.logger.info(f"ARGS: {request.args}")
