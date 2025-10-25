@@ -56,36 +56,40 @@ def aut():
 
 @app.route('/vk-redirect', methods=['POST'])
 def vk_callback():
-    print("Session cookie:", request.cookies)
-    print("Code verifier in session:", session.get('code_verifier'))
-    data = request.get_json(silent=True)
-    print("Session code_verifier:", session.get('code_verifier'))
-    print("Session state:", session.get('state'))
-    print("Data from frontend:", data)
-    if session.get('state') != data['state']:
-        return "Ошибка! Подменённый ответ", 400
 
-    code_verifier = session.get('code_verifier')
-    if not code_verifier:
-        print("Code verifier отсутствует!")
-        return "Ошибка: нет code_verifier", 400
-    dat = {
-        "grant_type": 'authorization_code',
-        "code_verifier": code_verifier,
-        "redirect_uri": "https://flask-bot-lu45.onrender.com/callback",
-        "code":data['code'],
-        "client_id": os.environ.get('CLIENT_ID'),
-        "device_id": data.get('device_id'),
-        "state": data.get('state')
-    }
-    response = rq.post("https://id.vk.ru/oauth2/auth",
-                       data=dat)
-    if response.ok:
-        token_data = response.json()
-        print(token_data)
-    else:
-        print(response.text)
-    return "OK"
+    if request.method == 'POST':
+        data = request.get_json()  # <- тут твой JSON объект приходит в Python как dict
+        print("Data from frontend:")
+    # print("Session cookie:", request.cookies)
+    # print("Code verifier in session:", session.get('code_verifier'))
+    # data = request.get_json(silent=True)
+    # print("Session code_verifier:", session.get('code_verifier'))
+    # print("Session state:", session.get('state'))
+    # print("Data from frontend:", data)
+    # if session.get('state') != data['state']:
+    #     return "Ошибка! Подменённый ответ", 400
+    #
+    # code_verifier = session.get('code_verifier')
+    # if not code_verifier:
+    #     print("Code verifier отсутствует!")
+    #     return "Ошибка: нет code_verifier", 400
+    # dat = {
+    #     "grant_type": 'authorization_code',
+    #     "code_verifier": code_verifier,
+    #     "redirect_uri": "https://flask-bot-lu45.onrender.com/callback",
+    #     "code":data['code'],
+    #     "client_id": os.environ.get('CLIENT_ID'),
+    #     "device_id": data.get('device_id'),
+    #     "state": data.get('state')
+    # }
+    # response = rq.post("https://id.vk.ru/oauth2/auth",
+    #                    data=dat)
+    # if response.ok:
+    #     token_data = response.json()
+    #     print(token_data)
+    # else:
+    #     print(response.text)
+    # return "OK"
 
 
 

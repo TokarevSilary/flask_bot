@@ -1,24 +1,17 @@
 {% extends "base.html" %}
 {% block body %}
 <div>
-  <div>
   <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
   <script type="text/javascript">
     if ('VKIDSDK' in window) {
       const VKID = window.VKIDSDK;
-
-      const state ="{{ state }}";
-      const code_challenge ="{{ code_challenge }}";
 
       VKID.Config.init({
         app: 54244977,
         redirectUrl: 'https://flask-bot-lu45.onrender.com/callback',
         responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
-        scope: 'wall, photos, offline, messages',
-        code_challenge: code_challenge,
-        code_challenge_method: "S256",
-        state: state
+        scope: 'wall, photos, offline, messages', // Заполните нужными доступами по необходимости
       });
 
       const oneTap = new VKID.OneTap();
@@ -29,24 +22,26 @@
       })
       .on(VKID.WidgetEvents.ERROR, vkidOnError)
       .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
-    const code = payload.code;
-    const deviceId = payload.device_id;
+        const code = payload.code;
+        const deviceId = payload.device_id;
 
-    // Отправка на сервер
-    fetch('https://flask-bot-lu45.onrender.com/vk-redirect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ code: code, device_id: deviceId, state: state })
-    })
-      .then(res => res.text())
-      .then(text => {
-          console.log(text);        // выводим текст в консоль;
-      })
-      .catch(console.error);
+        VKID.Auth.exchangeCode(code, deviceId)
+          .then(vkidOnSuccess)
+          .catch(vkidOnError);
       });
 
       function vkidOnSuccess(data) {
+      console.log("Токены от VKID SDK:", data);
+
+      fetch('/vk-redirect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.text())
+    .then(console.log)
+    .catch(console.error);
+}
         // Обработка полученного результата
       }
 
@@ -55,6 +50,5 @@
       }
     }
   </script>
-</div>
 </div>
 {% endblock %}
