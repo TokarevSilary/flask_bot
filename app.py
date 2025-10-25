@@ -7,7 +7,6 @@ import requests as rq
 import secrets
 from create_table.create_session import db
 from create_table.base_information import *
-import secrets
 import os
 
 load_dotenv()
