@@ -48,8 +48,7 @@ def vk_callback():
     dat = {
         "grant_type": 'authorization_code',
         "code_verifier": code_verifier,
-        "redirect_uri": "https://flask-bot-lu45.onrender.com/callback?"
-                        "return_to=https://flask-bot-lu45.onrender.com/",
+        "redirect_uri": "https://flask-bot-lu45.onrender.com/callback",
         "code":data['code'],
         "client_id": os.environ.get('CLIENT_ID'),
         "device_id": data.get('device_id'),
