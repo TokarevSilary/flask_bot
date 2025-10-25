@@ -78,7 +78,7 @@ def vk_callback():
         "device_id": data.get('device_id'),
         "state": data.get('state')
     }
-    response = rq.post("https://id.vk.ru/oauth2/token",
+    response = rq.post("https://id.vk.ru/oauth2/auth",
                        data=dat)
     if response.ok:
         token_data = response.json()
