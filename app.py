@@ -7,11 +7,13 @@ import requests as rq
 import secrets
 from create_table.create_session import db
 from create_table.base_information import *
+import secrets
 import os
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = "super secret key"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL_INTERNAL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -20,7 +22,10 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('first_page.html')
+    state = secrets.token_urlsafe(16)
+    session['state'] = state
+    # Передаём в шаблон (JS)
+    return render_template('first_page.html', state=state)
 
 
 @app.route('/tap_one', methods=['GET', 'POST'])
@@ -31,9 +36,6 @@ def aut():
 @app.route('/callback', methods=['POST'])
 def vk_callback():
     data = request.get_json(silent=True)
-    print(f"METHOD: {request.method}")
-    print(f"ARGS: {request.args}")
-    print(f"FORM: {request.form}")
     print(f"JSON: {data}")
     return "OK"
 
