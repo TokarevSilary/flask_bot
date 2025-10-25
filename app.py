@@ -28,12 +28,13 @@ def aut():
     return render_template('tap_one.html')
 
 
-@app.route('/callback', methods=['GET', 'POST'])
+@app.route('/callback', methods=['POST'])
 def vk_callback():
-    app.logger.info(f"METHOD: {request.method}")
-    app.logger.info(f"ARGS: {request.args}")
-    app.logger.info(f"FORM: {request.form}")
-    app.logger.info(f"JSON: {request.get_json(silent=True)}")
+    data = request.get_json(silent=True)
+    print(f"METHOD: {request.method}")
+    print(f"ARGS: {request.args}")
+    print(f"FORM: {request.form}")
+    print(f"JSON: {data}")
     return "OK"
 
 
