@@ -47,7 +47,7 @@ def aut():
 
     session_state = session.get('state')
     code_challenge = session.get('code_challenge')
-    # print("Code verifier:", code_verifier)
+    print("Code verifier:", session.get('code_verifier'))
     print("Code challenge:", code_challenge)
     print("State:", session_state)
 
