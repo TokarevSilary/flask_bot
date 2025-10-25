@@ -40,6 +40,10 @@
     })
     .then(res => res.text())
     .then(console.log)
+    .then(() => {
+        // Редирект после успешного отправления кода
+        window.location.href = '/';
+    })
     .catch(console.error);
       });
 
