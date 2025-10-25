@@ -39,13 +39,12 @@
         credentials: 'include',
         body: JSON.stringify({ code: code, device_id: deviceId, state: state })
     })
-    .then(res => res.text())
-    .then(console.log)
-    .then(() => {
-        // Редирект после успешного отправления кода
-        window.location.href = '/';
-    })
-    .catch(console.error);
+      .then(res => res.text())
+      .then(text => {
+          console.log(text);        // выводим текст в консоль
+          window.location.href = '/'; // и после этого редиректим
+      })
+      .catch(console.error);
       });
 
       function vkidOnSuccess(data) {
