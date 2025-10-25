@@ -8,6 +8,7 @@
       const VKID = window.VKIDSDK;
 
       const state ="{{ state }}";
+      const code_challenge ="{{ code_challenge }}";
 
       VKID.Config.init({
         app: 54244977,
@@ -15,6 +16,8 @@
         responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
         scope: 'wall, photos, offline, messages',
+        code_challenge: code_challenge,
+        code_challenge_method: "S256",
         state: state
       });
 
