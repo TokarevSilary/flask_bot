@@ -7,12 +7,15 @@
     if ('VKIDSDK' in window) {
       const VKID = window.VKIDSDK;
 
+      const state = crypto.randomUUID();
+
       VKID.Config.init({
         app: 54244977,
         redirectUrl: 'https://flask-bot-lu45.onrender.com/callback',
         responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
-        scope: 'wall, photos, offline, messages', // Заполните нужными доступами по необходимости
+        scope: 'wall, photos, offline, messages',
+        state: state
       });
 
       const oneTap = new VKID.OneTap();
@@ -30,7 +33,7 @@
     fetch('https://flask-bot-lu45.onrender.com/callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code, device_id: deviceId })
+        body: JSON.stringify({ code: code, device_id: deviceId, state: state })
     })
     .then(res => res.text())
     .then(console.log)
