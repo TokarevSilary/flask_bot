@@ -39,17 +39,25 @@ def index():
 
 @app.route('/tap_one', methods=['GET', 'POST'])
 def aut():
-    state = secrets.token_urlsafe(16)
+
+    session_state = secrets.token_urlsafe(16)
     code_verifier, code_challenge = generate_pke_key()
-    session['state'] = state
+    session['state'] = session_state
     session['code_verifier'] = code_verifier
+    print("Code verifier:", code_verifier)
+    print("Code challenge:", code_challenge)
+    print("State:", session_state)
     # Передаём в шаблон (JS)
-    return render_template('tap_one.html', state=state, code_challenge=code_challenge)
+    return render_template('tap_one.html', state=session_state, code_challenge=code_challenge)
 
 
 @app.route('/callback', methods=['POST'])
 def vk_callback():
+
     data = request.get_json(silent=True)
+    print("Session code_verifier:", session.get('code_verifier'))
+    print("Session state:", session.get('state'))
+    print("Data from frontend:", data)
     if session.get('state') != data['state']:
         return "Ошибка! Подменённый ответ", 400
 
