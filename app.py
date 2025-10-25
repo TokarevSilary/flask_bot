@@ -34,24 +34,24 @@ def generate_pke_key():
 
 @app.route('/')
 def index():
-    session_state = secrets.token_urlsafe(16)
-    code_verifier, code_challenge = generate_pke_key()
-    session['code_challenge'] = code_challenge
-    session['state'] = session_state
-    session['code_verifier'] = code_verifier
+    # session_state = secrets.token_urlsafe(16)
+    # code_verifier, code_challenge = generate_pke_key()
+    # session['code_challenge'] = code_challenge
+    # session['state'] = session_state
+    # session['code_verifier'] = code_verifier
     return render_template('first_page.html')
 
 
 @app.route('/tap_one', methods=['GET', 'POST'])
 def aut():
 
-    session_state = session.get('state')
-    code_challenge = session.get('code_challenge')
-    print("Code verifier:", session.get('code_verifier'))
-    print("Code challenge:", code_challenge)
-    print("State:", session_state)
+    # session_state = session.get('state')
+    # code_challenge = session.get('code_challenge')
+    # print("Code verifier:", session.get('code_verifier'))
+    # print("Code challenge:", code_challenge)
+    # print("State:", session_state)
 
-    return render_template('tap_one.html', state=session_state, code_challenge=code_challenge)
+    return render_template('tap_one.html')
 
 
 @app.route('/vk-redirect', methods=['POST'])
