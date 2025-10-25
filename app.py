@@ -54,7 +54,7 @@ def aut():
     return render_template('tap_one.html', state=session_state, code_challenge=code_challenge)
 
 
-@app.route('/callback', methods=['POST'])
+@app.route('/vk-redirect', methods=['POST'])
 def vk_callback():
     print("Session cookie:", request.cookies)
     print("Code verifier in session:", session.get('code_verifier'))
