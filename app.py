@@ -5,6 +5,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 import requests as rq
 import secrets
+
+from sqlalchemy.orm import state
+
 from create_table.create_session import db
 from create_table.base_information import *
 import os
@@ -35,7 +38,8 @@ def aut():
 @app.route('/callback', methods=['POST'])
 def vk_callback():
     data = request.get_json(silent=True)
-    print(f"JSON: {data}")
+    if session.get('state') == data['state']:
+        print(f"JSON: {data}")
     return "OK"
 
 
