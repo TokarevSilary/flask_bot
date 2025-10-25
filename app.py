@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, url_for, request, session, redirect
+from flask import Flask, render_template, url_for, request, session, redirect, jsonify
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -56,10 +56,9 @@ def aut():
 
 @app.route('/vk-redirect', methods=['POST'])
 def vk_callback():
-
-    if request.method == 'POST':
-        data = request.get_json()  # <- тут твой JSON объект приходит в Python как dict
-        print("Data from frontend:")
+    data = request.get_json()  # JSON из fetch приходит как dict
+    print("Data from frontend:", data)  # выводим сам объект
+    return "OK"
     # print("Session cookie:", request.cookies)
     # print("Code verifier in session:", session.get('code_verifier'))
     # data = request.get_json(silent=True)
