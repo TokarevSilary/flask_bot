@@ -21,15 +21,15 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    state = secrets.token_urlsafe(16)
-    session['state'] = state
-    # Передаём в шаблон (JS)
-    return render_template('first_page.html', state=state)
+    return render_template('first_page.html')
 
 
 @app.route('/tap_one', methods=['GET', 'POST'])
 def aut():
-    return render_template('tap_one.html')
+    state = secrets.token_urlsafe(16)
+    session['state'] = state
+    # Передаём в шаблон (JS)
+    return render_template('tap_one.html', state=state)
 
 
 @app.route('/callback', methods=['POST'])
