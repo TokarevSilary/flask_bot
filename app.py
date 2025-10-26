@@ -53,9 +53,7 @@ def aut():
 
     return render_template('tap_one.html')
 
-@app.route('/change_key', methods=['GET'])
-def test_get():
-    return "GET OK", 200
+
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -70,52 +68,49 @@ def show_routes_with_methods():
     return '<br>'.join(output)
 
 
-@app.route('/exchange_key', methods=['POST'])
-def exchange():
-    data = request.get_json()
-    if data:
-        user_id = data['user_id']
-        user = Users.query.filter_by(id=user_id).first()
-        if not user:
-            return jsonify({"error": f"Пользователь {user_id} не найден"}), 404
-        refresh_token = user.refresh_token
-        client_id = os.getenv("CLIENT_ID")
-        device_id = user.device_id
-        session_state = secrets.token_urlsafe(16)
-        session["state"] = session_state
-        url = "https://id.vk.ru/oauth2/token"
-        payload = {
-            "grant_type" : "refresh_token",
-            "refresh_token": refresh_token,
-            "client_id": client_id,
-            "device_id": device_id,
-            "state": session_state
-        }
+@app.route('/change_key/<int:user_id>', methods=['GET', 'POST'])
+def exchange(user_id):
+    user = Users.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": f"Пользователь {user_id} не найден"}), 404
+    refresh_token = user.refresh_token
+    client_id = os.getenv("CLIENT_ID")
+    device_id = user.device_id
+    session_state = secrets.token_urlsafe(16)
+    session["state"] = session_state
+    url = "https://id.vk.ru/oauth2/token"
+    payload = {
+        "grant_type" : "refresh_token",
+        "refresh_token": refresh_token,
+        "client_id": client_id,
+        "device_id": device_id,
+        "state": session_state
+    }
 
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
 
-        response = rq.post(url,headers=headers ,data=payload)
-        if response.status_code == 200:
-            response = response.json()
-            refresh_token = response.get("refresh_token")
-            access_token = response.get("access_token")
-            expires_in = response.get("expires_in")
-            if not access_token or not refresh_token:
-                return jsonify({"error": "VK не вернул новые токены", "details": response.json()}), 400
+    response = rq.post(url,headers=headers ,data=payload)
+    if response.status_code == 200:
+        response = response.json()
+        refresh_token = response.get("refresh_token")
+        access_token = response.get("access_token")
+        expires_in = response.get("expires_in")
+        if not access_token or not refresh_token:
+            return jsonify({"error": "VK не вернул новые токены", "details": response.json()}), 400
 
-            user.refresh_token = refresh_token
-            user.access_token = access_token
-            user.expires_in = expires_in
-            user.status = 2
-            db.session.commit()
-            message = f"Пользователь {user_id} добавлен"
-            return jsonify({"message": message}), 200
+        user.refresh_token = refresh_token
+        user.access_token = access_token
+        user.expires_in = expires_in
+        user.status = 2
+        db.session.commit()
+        message = f"Пользователь {user_id} добавлен"
+        return jsonify({"message": message}), 200
 
-        else:
-            return jsonify({"error": "Ошибка при обмене токена", "details": response.text}), response.status_code
-    return jsonify({"нет данных"}), 500
+    else:
+        return jsonify({"error": "Ошибка при обмене токена", "details": response.text}), response.status_code
+
 
 
 # user_id = id
