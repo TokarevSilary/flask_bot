@@ -3,52 +3,60 @@
 <div id="vk-container"></div>
   <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
   <script type="text/javascript">
-    if ('VKIDSDK' in window) {
-      const VKID = window.VKIDSDK;
+if ('VKIDSDK' in window) {
+    const VKID = window.VKIDSDK;
 
-      VKID.Config.init({
+    VKID.Config.init({
         app: 54244977,
         redirectUrl: 'https://flask-bot-lu45.onrender.com/callback',
         responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
-        scope: 'wall, photos, offline, messages', // Заполните нужными доступами по необходимости
-      });
+        scope: 'wall, photos, offline, messages'
+    });
 
-      const oneTap = new VKID.OneTap();
+    const oneTap = new VKID.OneTap();
 
-      oneTap.render({
-        container: document.currentScript.parentElement,
+    oneTap.render({
+        container: document.getElementById('vk-container'),
         showAlternativeLogin: true
-      })
-      .on(VKID.WidgetEvents.ERROR, vkidOnError)
-      .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
+    })
+    .on(VKID.WidgetEvents.ERROR, vkidOnError)
+    .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function(payload) {
+        // Когда пользователь успешно залогинился
         const code = payload.code;
         const deviceId = payload.device_id;
 
+        // Меняем код на токены
         VKID.Auth.exchangeCode(code, deviceId)
-          .then(vkidOnSuccess)
-          .catch(vkidOnError);
-      });
+            .then(function(tokens) {
+                console.log("Токены от VKID SDK:", tokens);
 
-      function vkidOnSuccess(data) {
-      console.log("Токены от VKID SDK:", data);
+                // Отправляем токены + device_id на сервер
+                var dataToSend = {
+                    access_token: tokens.access_token,
+                    refresh_token: tokens.refresh_token,
+                    id_token: tokens.id_token,
+                    expires_in: tokens.expires_in,
+                    user_id: tokens.user_id,
+                    device_id: deviceId
+                };
 
-      fetch('/vk-redirect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.text())
-    .then(console.log)
-    .catch(console.error);
+                fetch('/vk-redirect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataToSend)
+                })
+                .then(function(response) { return response.text(); })
+                .then(function(text) { console.log(text); })
+                .catch(function(err) { console.error(err); });
+            })
+            .catch(vkidOnError);
+    });
+
+    function vkidOnError(error) {
+        console.error("Ошибка VKID:", error);
+    }
 }
-        // Обработка полученного результата
-      }
-
-      function vkidOnError(error) {
-        // Обработка ошибки
-      }
-
-  </script>
+</script>
 
 {% endblock %}
