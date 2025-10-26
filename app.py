@@ -19,7 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "super secret key"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL_INTERNAL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -52,6 +52,14 @@ def aut():
     # print("State:", session_state)
 
     return render_template('tap_one.html')
+
+@app.route('/exchange_key', methods=['GET'])
+def test_get():
+    return "GET OK", 200
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    return "pong", 200
 
 
 @app.route('/exchange_key', methods=['POST'])
@@ -107,7 +115,7 @@ def exchange():
 def vk_callback():
     data = request.get_json()
     if request.method == 'POST' and data:
-        print("Data from frontend:", data)  # выводим сам объект
+        # print("Data from frontend:", data)  # выводим сам объект
         access_token = data['access_token']
         refresh_token = data['refresh_token']
         expires_in = data['expires_in']
