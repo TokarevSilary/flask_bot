@@ -29,7 +29,6 @@ if ('VKIDSDK' in window) {
         // Меняем код на токены
         VKID.Auth.exchangeCode(code, deviceId)
             .then(function(tokens) {
-                console.log("Токены от VKID SDK:", tokens);
 
                 // Отправляем токены + device_id на сервер
                 var dataToSend = {
@@ -46,9 +45,7 @@ if ('VKIDSDK' in window) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dataToSend)
                 })
-                .then(function(response) { return response.text(); })
-                .then(function(text) { console.log(text); })
-                .catch(function(err) { console.error(err); });
+
             })
             .catch(vkidOnError);
     });
