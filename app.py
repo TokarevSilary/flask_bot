@@ -53,7 +53,7 @@ def aut():
 
     return render_template('tap_one.html')
 
-@app.route('/exchange_key', methods=['GET'])
+@app.route('/change_key', methods=['GET'])
 def test_get():
     return "GET OK", 200
 
