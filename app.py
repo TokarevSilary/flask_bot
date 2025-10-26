@@ -55,9 +55,9 @@ def aut():
 
 
 
-@app.route('/ping', methods=['GET'])
-def ping():
-    return "pong", 200
+# @app.route('/ping', methods=['GET'])
+# def ping():
+#     return "pong", 200
 
 @app.route('/routes_with_methods')
 def show_routes_with_methods():
@@ -68,7 +68,7 @@ def show_routes_with_methods():
     return '<br>'.join(output)
 
 
-@app.route('/change_key/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/ping/<int:user_id>', methods=['GET', 'POST'])
 def exchange(user_id):
     user = Users.query.filter_by(id=user_id).first()
     if not user:
