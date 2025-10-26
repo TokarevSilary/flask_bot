@@ -78,7 +78,7 @@ def exchange(user_id):
     device_id = user.device_id
     session_state = secrets.token_urlsafe(16)
     session["state"] = session_state
-    url = "https://id.vk.ru/oauth2/token"
+    url = "https://id.vk.com/oauth2/auth"
     payload = {
         "grant_type" : "refresh_token",
         "refresh_token": refresh_token,
