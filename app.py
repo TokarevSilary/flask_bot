@@ -92,6 +92,9 @@ def exchange(user_id):
     }
 
     response = rq.post(url,headers=headers ,data=payload)
+    print(response.status_code)
+    print(response.text)
+    print(response.request.body)
     if response.status_code == 200:
         response = response.json()
         refresh_token = response.get("refresh_token")
