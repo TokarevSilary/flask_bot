@@ -61,9 +61,13 @@ def test_get():
 def ping():
     return "pong", 200
 
-@app.route('/routes')
-def show_routes():
-    return '<br>'.join([str(r) for r in app.url_map.iter_rules()])
+@app.route('/routes_with_methods')
+def show_routes_with_methods():
+    output = []
+    for rule in app.url_map.iter_rules():
+        methods = ','.join(rule.methods)
+        output.append(f"{rule} -> {methods}")
+    return '<br>'.join(output)
 
 
 @app.route('/exchange_key', methods=['POST'])
