@@ -19,7 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "super secret key"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL_INTERNAL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -54,11 +54,93 @@ def aut():
     return render_template('tap_one.html')
 
 
+@app.route('/exchange_key', methods=['POST'])
+def exchange():
+    data = request.get_json()
+    if data:
+        user_id = data['user_id']
+        user = Users.query.filter_by(id=user_id).first()
+        if not user:
+            return jsonify({"error": f"Пользователь {user_id} не найден"}), 404
+        refresh_token = user.refresh_token
+        client_id = os.getenv("CLIENT_ID")
+        device_id = user.device_id
+        session_state = secrets.token_urlsafe(16)
+        session["state"] = session_state
+        url = "https://id.vk.ru/oauth2/token"
+        payload = {
+            "grant_type" : "refresh_token",
+            "refresh_token": refresh_token,
+            "client_id": client_id,
+            "device_id": device_id,
+            "state": session_state
+        }
+
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+
+        response = rq.post(url,headers=headers ,data=payload)
+        if response.status_code == 200:
+            response = response.json()
+            refresh_token = response.get("refresh_token")
+            access_token = response.get("access_token")
+            expires_in = response.get("expires_in")
+            if not access_token or not refresh_token:
+                return jsonify({"error": "VK не вернул новые токены", "details": response.json()}), 400
+
+            user.refresh_token = refresh_token
+            user.access_token = access_token
+            user.expires_in = expires_in
+            user.status = 2
+            db.session.commit()
+            message = f"Пользователь {user_id} добавлен"
+            return jsonify({"message": message}), 200
+
+        else:
+            return jsonify({"error": "Ошибка при обмене токена", "details": response.text}), response.status_code
+    return jsonify({"нет данных"}), 500
+
+
+# user_id = id
 @app.route('/vk-redirect', methods=['POST'])
 def vk_callback():
-    data = request.get_json()  # JSON из fetch приходит как dict
-    print("Data from frontend:", data)  # выводим сам объект
-    return "OK"
+    data = request.get_json()
+    if request.method == 'POST' and data:
+        print("Data from frontend:", data)  # выводим сам объект
+        access_token = data['access_token']
+        refresh_token = data['refresh_token']
+        expires_in = data['expires_in']
+        user_id = data['user_id']
+        device_id = data['device_id']
+        if not all([access_token, refresh_token, expires_in, user_id]):
+            return jsonify({"error": "Отсутствуют обязательные поля"}), 400
+        user = Users.query.filter_by(id=user_id).first()
+        if user:
+            user.access_token = access_token
+            user.refresh_token = refresh_token
+            user.expires_in = expires_in
+            user.device_id = device_id
+            user.status = 1
+            message = f"Обновлены данные пользователя {user_id}"
+        else:
+            users = Users(id=user_id,
+                         date_of_key=datetime.now(),
+                         expires_in=expires_in,
+                         device_id=device_id,
+                         access_token=access_token,
+                         refresh_token=refresh_token,
+                          status=1)
+            db.session.add(users)
+            message = f"Добавлен пользователь {user_id}"
+        try:
+            db.session.commit()
+            return jsonify({"message": message}), 200
+        except Exception as e:
+            return f"При добавлении человека {user_id} произошла ошибка"
+    else:
+        return jsonify({"error": f"Ошибка нет данных:"}), 500
+
     # print("Session cookie:", request.cookies)
     # print("Code verifier in session:", session.get('code_verifier'))
     # data = request.get_json(silent=True)

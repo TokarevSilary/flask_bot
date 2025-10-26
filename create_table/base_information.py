@@ -9,8 +9,8 @@ class Users(db.Model):
     city = db.Column(db.String(60), nullable=True)
     status = db.Column(db.Integer, default=0)
     date_of_key = db.Column(db.DateTime, nullable=True)
-    expire_date = db.Column(db.Integer, nullable=True)
-    _state_with_token = db.Column("state", db.Text, nullable=True)
+    expires_in = db.Column(db.Integer, nullable=True)
+    _device_id = db.Column(db.Text(), nullable=True)
     _access_token_encrypted = db.Column("access_token" ,db.Text(), nullable=True)
     _refresh_token_encrypted = db.Column("refresh_token" ,db.Text(), nullable=True)
 
@@ -18,17 +18,18 @@ class Users(db.Model):
 
 
     @property
-    def state(self):
-        if self._state_with_token:
-            return fernet.decode(self._state_with_token.encode()).decode()
+    def device_id(self):
+        if self._device_id:
+            return fernet.decode(self._device_id.encode()).decode()
         return None
 
-    @state.setter
-    def state(self, value):
+
+    @device_id.setter
+    def device_id(self, value):
         if value:
-            self._state_with_token = fernet.encode(value.encode()).decode()
+            self._device_id = fernet.encode(value.encode()).decode()
         else:
-            self._state_with_token = None
+            self._device_id = None
 
 
     @property
