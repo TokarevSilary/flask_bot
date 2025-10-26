@@ -20,14 +20,14 @@ class Users(db.Model):
     @property
     def device_id(self):
         if self._device_id:
-            return fernet.decode(self._device_id.encode()).decode()
+            return fernet.decrypt(self._device_id.encode()).decode()
         return None
 
 
     @device_id.setter
     def device_id(self, value):
         if value:
-            self._device_id = fernet.encode(value.encode()).decode()
+            self._device_id = fernet.encrypt(value.encode()).decode()
         else:
             self._device_id = None
 
@@ -37,6 +37,8 @@ class Users(db.Model):
         if self._access_token_encrypted:
             return fernet.decrypt(self._access_token_encrypted.encode()).decode()
         return None
+
+
     @access_token.setter
     def access_token(self, value):
         if value:
@@ -49,6 +51,8 @@ class Users(db.Model):
         if self._refresh_token_encrypted:
             return fernet.decrypt(self._refresh_token_encrypted.encode()).decode()
         return None
+
+
     @refresh_token.setter
     def refresh_token(self, value):
         if value:
