@@ -3,10 +3,11 @@ from create_table.create_session import db, fernet
 
 class Users(db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.BIGINT, primary_key=True)
+    id = db.Column(db.BIGINT, primary_key=True, autoincrement=False)
     age = db.Column(db.Integer, nullable=True)
     gender = db.Column(db.String(10), nullable=True)
     city = db.Column(db.String(60), nullable=True)
+    city_id = db.Column(db.Integer, nullable=True)
     status = db.Column(db.Integer, default=0)
     date_of_key = db.Column(db.DateTime, nullable=True)
     expires_in = db.Column(db.Integer, nullable=True)
