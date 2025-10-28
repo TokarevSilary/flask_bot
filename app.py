@@ -112,7 +112,7 @@ def exchange(user_id):
         user.access_token = access_token
         user.expires_in = expires_in
         user.status = 2
-        user.date = datetime.now().isoformat()
+        user.date_of_key = datetime.now()
         db.session.commit()
         message = f"Пользователь {user_id} добавлен"
         return jsonify({"message": message}), 200
@@ -142,7 +142,7 @@ def vk_callback():
             user.expires_in = expires_in
             user.device_id = device_id
             user.status = 1
-            user.date = datetime.now().isoformat()
+            user.date_of_key = datetime.now()
             message = f"Обновлены данные пользователя {user_id}"
         else:
             users = Users(id=user_id,

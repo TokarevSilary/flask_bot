@@ -11,6 +11,7 @@ class Users(db.Model):
     status = db.Column(db.Integer, default=0)
     date_of_key = db.Column(db.DateTime, nullable=True)
     expires_in = db.Column(db.Integer, nullable=True)
+    last_user = db.Column(db.Integer, nullable=True)
     _device_id = db.Column(db.Text(), nullable=True)
     _access_token_encrypted = db.Column(
         "access_token", db.Text(), nullable=True)
