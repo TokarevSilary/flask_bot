@@ -111,7 +111,7 @@ def exchange(user_id):
         user.refresh_token = refresh_token
         user.access_token = access_token
         user.expires_in = expires_in
-        user.status = 2
+        user.status = 1
         user.date_of_key = datetime.now()
         db.session.commit()
         message = f"Пользователь {user_id} добавлен"
