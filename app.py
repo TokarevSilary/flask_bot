@@ -29,8 +29,10 @@ def generate_pke_key():
     code_verifier = secrets.token_urlsafe(64)
     code_verifier_bytes = code_verifier.encode('utf-8')
     sha256_hash = hashlib.sha256(code_verifier_bytes).digest()
-    code_challenge = base64.urlsafe_b64encode(sha256_hash).rstrip(b'=').decode('utf-8')
+    code_challenge = base64.urlsafe_b64encode(
+        sha256_hash).rstrip(b'=').decode('utf-8')
     return code_verifier, code_challenge
+
 
 @app.route('/')
 def index():
@@ -52,7 +54,6 @@ def aut():
     # print("State:", session_state)
 
     return render_template('tap_one.html')
-
 
 
 # @app.route('/ping', methods=['GET'])
@@ -80,12 +81,13 @@ def exchange(user_id):
     session["state"] = session_state
     url = "https://id.vk.com/oauth2/auth"
     payload = {
-        "grant_type" : "refresh_token",
+        "grant_type": "refresh_token",
         "refresh_token": refresh_token,
         "client_id": client_id,
         "client_secret": os.getenv("VK_CLIENT_SECRET"),
         "device_id": device_id,
         "state": session_state,
+        "date": datetime.now().isoformat()
 
     }
 
@@ -93,7 +95,7 @@ def exchange(user_id):
         "Content-Type": "application/x-www-form-urlencoded",
     }
 
-    response = rq.post(url,headers=headers ,data=payload)
+    response = rq.post(url, headers=headers, data=payload)
     # print(response.status_code)
     # print(response.text)
     # print(response.request.body)
@@ -103,19 +105,21 @@ def exchange(user_id):
         access_token = response.get("access_token")
         expires_in = response.get("expires_in")
         if not access_token or not refresh_token:
-            return jsonify({"error": "VK не вернул новые токены", "details": response.json()}), 400
+            return jsonify({"error": "VK не вернул новые токены",
+                           "details": response.json()}), 400
 
         user.refresh_token = refresh_token
         user.access_token = access_token
         user.expires_in = expires_in
         user.status = 2
+        user.date = datetime.now().isoformat()
         db.session.commit()
         message = f"Пользователь {user_id} добавлен"
         return jsonify({"message": message}), 200
 
     else:
-        return jsonify({"error": "Ошибка при обмене токена", "details": response.text}), response.status_code
-
+        return jsonify({"error": "Ошибка при обмене токена",
+                       "details": response.text}), response.status_code
 
 
 # user_id = id
@@ -138,14 +142,15 @@ def vk_callback():
             user.expires_in = expires_in
             user.device_id = device_id
             user.status = 1
+            user.date = datetime.now().isoformat()
             message = f"Обновлены данные пользователя {user_id}"
         else:
             users = Users(id=user_id,
-                         date_of_key=datetime.now(),
-                         expires_in=expires_in,
-                         device_id=device_id,
-                         access_token=access_token,
-                         refresh_token=refresh_token,
+                          date_of_key=datetime.now(),
+                          expires_in=expires_in,
+                          device_id=device_id,
+                          access_token=access_token,
+                          refresh_token=refresh_token,
                           status=1)
             db.session.add(users)
             message = f"Добавлен пользователь {user_id}"
@@ -187,7 +192,6 @@ def vk_callback():
     # else:
     #     print(response.text)
     # return "OK"
-
 
 
 if __name__ == "__main__":
